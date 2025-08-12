@@ -1,0 +1,107 @@
+modules = ["nodejs-20", "web", "ruby-3.2", "java-17"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["openssh_gssapi", "android-tools", "unzip", "gradle", "wget"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Educational File Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "display_alpha_file"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "React Development Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "React Dev Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Android APK Build"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Final Android Build"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "APK Build Monitor"
+
+[[workflows.workflow]]
+name = "React Development Server"
+author = "agent"
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "React Dev Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "BROWSER=none npm start"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Android APK Build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "source ./android-env.sh && cd android && timeout 1800 ./gradlew assembleDebug --no-parallel --max-workers=1 --no-build-cache --stacktrace"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Final Android Build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "source ./android-env.sh && cd android && ./gradlew assembleDebug --no-daemon --max-workers=1 --info"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "APK Build Monitor"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "while ! find android -name \"*.apk\" -type f 2>/dev/null | grep -q \"app-debug.apk\"; do sleep 10; echo \"$(date): Android build in progress...\"; ps aux | grep -c gradle | grep -v grep || true; done; echo \"$(date): APK BUILD COMPLETED!\"; find android -name \"*.apk\" -type f 2>/dev/null; ls -la android/app/build/outputs/apk/debug/ 2>/dev/null"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 5000
+externalPort = 80
